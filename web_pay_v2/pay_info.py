@@ -1,17 +1,24 @@
 # coding=UTF-8
 import base64
+# import datetime
 import hashlib
-import requests
+import json
+import random
+# import requests
+import string
+import time
 from Crypto.Cipher import AES
 from django.http import HttpResponse
 # from bottle import route, run, template
+from django.shortcuts import render
+from django.views.decorators.csrf import csrf_protect, csrf_exempt
 
 # testcard   4000-2211-1111-1111
-
 
 BS = 16
 pad = lambda s: s + (BS - len(s) % BS) * chr(BS - len(s) % BS)
 unpad = lambda s : s[:-ord(s[len(s)-1:])]
+
 
 def encrypt(message):
     hkey = 'Kj4PiW6Mkte2bEtvFW5ctWnqScxRg8vk'
@@ -28,25 +35,56 @@ def decrypt(encrypted):
     aes = AES.new(hkey, AES.MODE_CBC, iv)
     return unpad(aes.decrypt(encrypted[16:]))
 
+# pay_information/?store=MS36057042&user_email=xyaw@pchome.com.tw&amount=101&paperno=paper1001&lang=en&itemscript=testitem001
+# /pay_information/?user_email=xyaw@pchome.com.tw&amount=101&paperno=paper1001&lang=zh-TW
+# /pay_information/?user_email=xyaw@pchome.com.tw&amount=101&paperno=paper1001&lang=en
+
 
 def payinfor(request):
+    if request.method == 'GET':
+        user_email = str(request.GET['user_email'])
+        amount = str(request.GET['amount'])
+        paperno = str(request.GET['paperno'])
+        language_flag = str(request.GET['lang'])
+        store_id = str(request.GET['store'])
+        itemscript = str(request.GET['itemscript'])
+
     hkey = 'Kj4PiW6Mkte2bEtvFW5ctWnqScxRg8vk'
     iv = 'cWOUpDXX06a2eCBm'
-    mydata = "MerchantID=MS36057042&" \
+
+    version_data = '1.5'
+    merchantid_data = store_id
+    weburl = request.get_host()
+
+    if not amount:
+        amount = str(10)
+    if not user_email:
+        user_email = 'xyaw@pchome.com.tw'
+    if not paperno:
+        paperno='test0001'
+
+    i = time.strftime("%Y/%m/%d")+time.strftime("%H:%M:%S")
+    now_data = str(i)
+
+    j = str(time.strftime("%Y%m%d"))
+    salt = ''.join(random.sample(string.ascii_letters + string.digits, 7))
+    order_no = j + salt
+
+    mydata = "MerchantID="+merchantid_data+"&" \
         "RespondType=JSON&" \
-        "TimeStamp='201904251441'&" \
+        "TimeStamp="+now_data+"&" \
         "Version=1.5&" \
-        "MerchantOrderNo=order001&" \
-        "Amt=10&" \
-        "ItemDesc='商品資訊(自行修改)'&" \
-        "ReturnURL=http://140.134.51.49/return&" \
-        "NotifyURL=http://140.134.51.49/notify&" \
-        "ClientBackURL=http://140.134.51.49/cancelback&" \
-        "Email=xyaw@pchome.com.tw&" \
+        "MerchantOrderNo="+order_no+"&" \
+        "Amt="+amount+"&" \
+        "ItemDesc="+itemscript+"&" \
+        "ReturnURL=http://"+weburl+"/return&" \
+        "NotifyURL=http://"+weburl+"/notify&" \
+        "ClientBackURL=http://"+weburl+"/cancelback&" \
+        "Email="+user_email+"&" \
         "EmailModify=0&" \
-        "OrderComment= '論文編號001'&" \
+        "OrderComment="+paperno+"&" \
         "CREDIT=1&" \
-        "LangType=en"
+        "LangType="+language_flag
 
 
 
@@ -61,23 +99,12 @@ def payinfor(request):
     res = sha256.hexdigest()
     tradesha_data = res.upper()
 
-    transfer_data = {
-        'MerchantID': 'MS36057042',
-        'TradeInfo': tradeInfo_data,
-        'TradeSha': tradesha_data,
-        'Version': 1.5
-    }
-
-    r = requests.post('https://ccore.newebpay.com/MPG/mpg_gateway', data=transfer_data)
-    return HttpResponse(r.text)
+    return render(request, 'confirm.html', locals())
 
 
+@csrf_exempt
 def returnurl(request):
-    return HttpResponse('return')
-
-
-def notifyurl(request):
-    return HttpResponse('notifyurl')
+    return HttpResponse(request.POST['Status'])
 
 
 def cancelbackurl(request):

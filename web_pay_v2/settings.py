@@ -25,7 +25,10 @@ SECRET_KEY = '(^zherd_4bjv^6xrg#!xuj%j@1#+9v&s@l68vx=3+*o7l@0gh9'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['140.134.51.49']
+ALLOWED_HOSTS = [
+    '140.134.51.49',
+    'https://ccore.newebpay.com',
+    ]
 
 
 # Application definition

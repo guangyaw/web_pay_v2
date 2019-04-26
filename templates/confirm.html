@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+{#<html lang="en">#}
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<form name='newebpay' method='post' action='https://ccore.newebpay.com/MPG/mpg_gateway'>
+    {% csrf_token %}
+    <input type='hidden' name='MerchantID' value={{ merchantid_data }}><br>
+    <input id="proddata3" type="hidden" name="Version"  value='1.5'><br>
+    <input id="proddata1" type="hidden" name="TradeInfo"  value= {{ tradeInfo_data }} ><br>
+    <input id="proddata2" type="hidden" name="TradeSha"  value= {{ tradesha_data }} ><br>
+    <input type='submit' value='Submit'>
+</form>
+
+</body>
+</html>

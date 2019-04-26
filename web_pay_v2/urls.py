@@ -22,6 +22,5 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^pay_information', pay_info.payinfor),
     url(r'^return', pay_info.returnurl),
-    url(r'^notify', pay_info.notifyurl),
     url(r'^cancelback', pay_info.cancelbackurl),
 ]
