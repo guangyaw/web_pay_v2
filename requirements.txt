@@ -25,7 +25,7 @@ jsonschema==2.6.0
 libnacl==1.6.1
 lmdb==0.94
 msgpack-python==0.5.6
-paramiko==2.4.2
+paramiko==2.10.1
 Paver==1.2.1
 pyasn1==0.4.5
 pycparser==2.19
