@@ -2,7 +2,7 @@ asn1crypto==0.24.0
 backports.ssl-match-hostname==3.7.0.1
 base58==1.0.3
 bcrypt==3.1.6
-bottle==0.12.16
+bottle==0.12.20
 cached-property==1.5.1
 certifi==2019.3.9
 cffi==1.12.2
